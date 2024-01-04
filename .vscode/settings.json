@@ -1,0 +1,5 @@
+{
+  "go.buildEnvVars": {
+    "CGO_ENABLED": "1"
+  }
+}
