@@ -9,14 +9,18 @@ export default function UsersPage() {
   // const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    async function fetchdata() {
-      const productsResponse = await axios.get<User[]>(baseUrl);
-      setUsers(productsResponse.data);
-      // setIsLoaded(true);
+    async function fetchData() {
+      try {
+        const response = await axios.get<User[]>(baseUrl);
+        setUsers(response.data);
+        console.log(response.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
     }
-    fetchdata();
-  }, [users]);
 
+    fetchData();
+  }, [users]);
   // const handleDelete = async (id) => {
   //   try {
   //     const productsResponse = await axios.delete<Product[]>(
@@ -83,17 +87,19 @@ export default function UsersPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="shrink-0 px-1 text-md ">{item.firstName}</div>
+                  <div className="shrink-0 px-1 text-md ">
+                    {item.first_name}
+                  </div>
                 </div>
                 <div className="flex flex-1 items-left justify-between space-x-2">
                   <img
                     className="rounded-full ml-24 w-10 h-12 "
-                    src={item.lastName}
+                    src={item.last_name}
                     alt="avatar"
                   />
                 </div>
                 <div className="shrink-0 px-1 mr-8 text-xs ">
-                  {item.lastName}
+                  {item.last_name}
                 </div>
                 {/* <div className="hidden px-2 text-xs+ mx-20 sm:flex">
                   {item.price}
