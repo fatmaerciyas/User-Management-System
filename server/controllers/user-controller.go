@@ -11,7 +11,6 @@ import (
 )
 
 
-
 func GetUsers(db *sql.DB) func(context *gin.Context) {
 	return func(context *gin.Context) {
 		// Define the SQLite query
@@ -142,6 +141,7 @@ func UpdateUser(db *sql.DB) gin.HandlerFunc {
 		context.IndentedJSON(http.StatusOK, gin.H{"message": "Todo item updated successfully"})
 	}
 }
+
 
 func DeleteUser(db *sql.DB) gin.HandlerFunc {
 	return func(context *gin.Context) {
