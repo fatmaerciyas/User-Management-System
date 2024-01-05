@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/spf13/viper"
@@ -47,6 +48,14 @@ func main(){
  router := gin.Default() //This is our server
 //  router.Use(CORSMiddleware())
 
+router.Use(cors.New(cors.Config{
+	AllowAllOrigins: true,
+	AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+	AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+	ExposeHeaders:    []string{"Content-Length"},
+	AllowCredentials: true,
+}))
+
  // Define routes
  router.GET("/UserManagement", controllers.GetUsers(db))
  router.GET("/UserManagement/:id", controllers.GetUserById(db))
@@ -57,19 +66,3 @@ func main(){
  router.Run(fmt.Sprintf("localhost:%d", port)) // Run server in this port
  
 } 
-
-func CORSMiddleware() gin.HandlerFunc {
-    return func(c *gin.Context) {
-        c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-        c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-        c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-        c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
-
-        if c.Request.Method == "OPTIONS" {
-            c.AbortWithStatus(204)
-            return
-        }
-
-        c.Next()
-    }
-}
