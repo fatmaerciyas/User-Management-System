@@ -30,27 +30,14 @@ func main(){
 	}
 	defer db.Close()
 
-// Configure CORS
-// config := cors.Config{
-// 	AllowOrigins:     []string{"*"},
-// 	AllowMethods:     []string{"GET", "POST", "PUT", "DELETE","PATCH"},
-// 	AllowHeaders:     []string{"Origin", "Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization"},
-// 	AllowCredentials: true,
-// 	ExposeHeaders:    []string{"Content-Length"},
-// 	MaxAge:           12 * 60 * 60, // 12 hours
-//  }
- 
- // Use Gin CORS middleware with the configured options
-//  config := cors.DefaultConfig()
-//  config.AllowAllOrigins = true
 
- // Use Gin CORS middleware with the configured options
+ //  Gin CORS middleware with the configured options
  router := gin.Default() //This is our server
-//  router.Use(CORSMiddleware())
 
+ // Configure CORS
 router.Use(cors.New(cors.Config{
 	AllowAllOrigins: true,
-	AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+	AllowMethods:     []string{"GET", "POST", "PUT", "DELETE","PATCH"},
 	AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 	ExposeHeaders:    []string{"Content-Length"},
 	AllowCredentials: true,

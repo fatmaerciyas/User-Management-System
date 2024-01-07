@@ -2,19 +2,24 @@ package controllers
 
 import (
 	"User-Management-System/entities"
+	"User-Management-System/models"
 	"database/sql"
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 
+// * Returns all users
 func GetUsers(db *sql.DB) func(context *gin.Context) {
 	return func(context *gin.Context) {
 		// Define the SQLite query
-		query := "SELECT id, first_name, last_name, email FROM users"
+		query := "SELECT id, user_name, first_name, last_name, email,image,address, created_date, updated_date FROM users"
+
+
 		
 		fmt.Println("query IS",query)
 
@@ -33,7 +38,7 @@ func GetUsers(db *sql.DB) func(context *gin.Context) {
 		// Iterate over the rows and append each user to the slice
 		for rows.Next() {
 			var user entities.User
-			err := rows.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email)
+			err := rows.Scan(&user.ID, &user.UserName, &user.FirstName, &user.LastName, &user.Email, &user.Image, &user.Address, &user.CreatedDate, &user.UpdatedDate)
 			if err != nil {
 				panic(err)
 			}
@@ -52,6 +57,7 @@ func GetUsers(db *sql.DB) func(context *gin.Context) {
 
 }
 
+// ▪ Save the given user.
 func AddUser(db *sql.DB) gin.HandlerFunc {
 	return func(context *gin.Context) {
 		var newUser entities.User
@@ -59,8 +65,11 @@ func AddUser(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		insertStatement := `INSERT INTO users (first_name, last_name,  email) VALUES (?,?,?)`
-		_, err := db.Exec(insertStatement, newUser.FirstName, newUser.LastName, newUser.Email)
+		// Default datetime
+		createdDateTime := time.Now()
+
+		insertStatement := `INSERT INTO users (user_name, first_name, last_name,  email, image, address, created_date, updated_date) VALUES (?,?,?,?,?,?,?,?)`
+		_, err := db.Exec(insertStatement, newUser.UserName, newUser.FirstName, newUser.LastName, newUser.Email,newUser.Image, newUser.Address, createdDateTime,createdDateTime)
 		if err != nil {
 			context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
@@ -70,6 +79,7 @@ func AddUser(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
+// ▪ Return the user with the desired “id”
 func GetUserById(db *sql.DB) func(context *gin.Context) {
 	return func(context *gin.Context) {
 		id := context.Param("id")
@@ -82,7 +92,7 @@ func GetUserById(db *sql.DB) func(context *gin.Context) {
 		}
 
 		// Define the SQLite query
-		query := "SELECT id, first_name, last_name, email FROM users WHERE id = ?"
+		query := "SELECT id, user_name, first_name, last_name, email,image,address, created_date, updated_date FROM users WHERE id = ?"
 
 		// Query the database and store the result in rows
 		rows, err := db.Query(query, userID)
@@ -96,7 +106,7 @@ func GetUserById(db *sql.DB) func(context *gin.Context) {
 
 		// Iterate over the rows and set the user data
 		for rows.Next() {
-			err := rows.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email)
+			err := rows.Scan(&user.ID, &user.UserName, &user.FirstName, &user.LastName, &user.Email, &user.Image, &user.Address, &user.CreatedDate, &user.UpdatedDate)
 			if err != nil {
 				panic(err)
 			}
@@ -113,36 +123,35 @@ func GetUserById(db *sql.DB) func(context *gin.Context) {
 	}
 }
 
+// ▪ Update data of the user with the desired “id”
 func UpdateUser(db *sql.DB) gin.HandlerFunc {
 	return func(context *gin.Context) {
 		id := context.Param("id")
-		
-		// Parse the JSON body of the request
-		// var updateUserRequest models.UserUpdate
-		var updateUserRequest struct {
-			FirstName string `json:"first_name"`
-			LastName  string `json:"last_name"`
-			Email     string `json:"email"`
-		}
+
+		//Update User Model
+		var updateUserRequest models.UserUpdate
+
+		// Default datetime
+		updatedDateTime := time.Now()
 		
 		if err := context.BindJSON(&updateUserRequest); err != nil {
 			context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		// Update the 'completed' value of the todo item in the database
-		updateStatement := `UPDATE users SET first_name = ?, last_name = ?, email = ? WHERE id = ?`
-		_, err := db.Exec(updateStatement, updateUserRequest.FirstName, updateUserRequest.LastName, updateUserRequest.Email, id)
+		// Update colums in users table in database
+		updateStatement := `UPDATE users SET user_name= ?, first_name = ?, last_name = ?, email = ?,image = ? , address = ?, updated_date =? WHERE id = ?`
+		_, err := db.Exec(updateStatement,updateUserRequest.UserName, updateUserRequest.FirstName, updateUserRequest.LastName, updateUserRequest.Email, updateUserRequest.Image, updateUserRequest.Address,updatedDateTime,  id)
 		if err != nil {
 			context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 
-		context.IndentedJSON(http.StatusOK, gin.H{"message": "Todo item updated successfully"})
+		context.IndentedJSON(http.StatusOK, gin.H{"message": "users updated successfully"})
 	}
 }
 
-
+// ▪ Delete the user with the desired “id”
 func DeleteUser(db *sql.DB) gin.HandlerFunc {
 	return func(context *gin.Context) {
 		id := context.Param("id")
